@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+   
+    </head>
+    <body>
+        <style>
+            body{
+                background-color: darkgrey;
+                height: 800px;
+                width: 98%;
+                min-width: 800px;
+                
+             
+                
+            }
+
+            #space{
+                background-color: black;
+                position: relative;
+                height: 100%;
+                display: grid;
+                width: 800px;
+                margin: 0px auto;
+                
+            }
+
+            #station{
+                background-color: blue;
+                height: 75px;
+                width:  800px;
+                position: absolute;
+                bottom: 0;
+                place-self: center;
+                display: grid;
+                place-items: center;
+            }
+
+            #ship{
+                position: absolute;
+                left: 375px;
+                height: 50px;
+                width: 50px;
+                background-color: green;
+
+            }
+
+            .enemy{
+                position: absolute;
+                top: 15px;
+                height: 200px;
+                width: 200px;
+                background-color: red;
+                text-align: center;
+                display: grid;
+                align-content: center;
+                color: white;
+                font-size: 24px;
+
+            }
+
+            .bullet{
+
+                position: absolute;
+                background-color: rgb(32, 79, 110);
+                width: 5px;
+                height: 10px;
+                
+                bottom: 40px;
+            }
+            
+            #majorcity{
+                background-image: linear-gradient(180deg, blue 50%, yellow 50%);
+                height: 100px;
+                width: 120px;
+                place-self: center;
+                position: absolute;
+
+            }
+        </style>
+        <script>
+            let bulletList = [];
+            let enemyDirection = 'right';
+            let gamestarted = false;
+            let enemyHealth = 100;
+            
+            document.addEventListener('keydown', (e) => {
+                //alert("button: " + e.code)
+                if(gamestarted == false){
+                    gamestarted = true;
+                }
+                if(e.code == 'ArrowRight'){
+                    moveright();
+                }
+                if(e.code == 'ArrowLeft'){
+                    moveleft();
+                }
+
+                if(e.code == 'Space'){
+                    shootbullet();
+                }
+
+                if(e.code == 'KeyQ'){
+                    gamestarted = false;
+                }
+
+                
+
+            })
+
+            let checkCollision = (bullet) => {
+                let enemy = document.getElementsByClassName('enemy')[0];
+                let enemyPositionFromLeft = window.getComputedStyle(enemy).getPropertyValue('left');
+                let enemyPositionFromTop = window.getComputedStyle(enemy).getPropertyValue('top');
+
+                let bulletPositionLeft = window.getComputedStyle(bullet).getPropertyValue('left');
+                let bulletPositionBottom = window.getComputedStyle(bullet).getPropertyValue('bottom');
+
+                //alert("enemy is at: " +  enemyPositionFromLeft + " from the left and " + enemyPositionFromTop + " bullet is at: " +  bulletPostionLeft + " from the left and " + bulletPositionBottom);
+                
+                //clean up enemyposfromleft
+                if(enemyPositionFromLeft.length > 2){
+                    enemyPositionFromLeft = enemyPositionFromLeft.substring(0, enemyPositionFromLeft.length - 2);
+                }
+                enemyPositionFromLeft = Number(enemyPositionFromLeft)
+                //from bottom
+
+                if(enemyPositionFromTop.length > 2){
+                    enemyPositionFromTop = enemyPositionFromTop.substring(0, enemyPositionFromTop.length - 2);
+                }
+                enemyPositionFromTop = Number(enemyPositionFromTop)
+
+                if(bulletPositionBottom.length > 2){
+                    bulletPositionBottom = bulletPositionBottom.substring(0, bulletPositionBottom.length - 2);
+                }
+                bulletPositionBottom = Number(bulletPositionBottom)
+                if(bulletPositionLeft.length > 2){
+                    bulletPositionLeft = bulletPositionLeft.substring(0, bulletPositionLeft.length - 2);
+                }
+                bulletPositionLeft = Number(bulletPositionLeft)
+
+                if(bulletPositionBottom > 585 && bulletPositionBottom < 790 && bulletPositionLeft > enemyPositionFromLeft && bulletPositionLeft < enemyPositionFromLeft + 200){
+                    enemyHealth -= 1;
+
+                    bullet.parentNode.removeChild(bullet);
+
+                }
+
+            }
+
+
+            let shootbullet = () => {
+                let bullet = document.createElement('div');
+                bullet.classList.add('bullet');
+                bulletList.push(bullet);
+                let shipPosition = window.getComputedStyle(ship).getPropertyValue('left');
+                if(shipPosition.length > 2){
+                    shipPosition = shipPosition.substring(0,shipPosition.length  - 2);
+                }
+                shipPosition = Number(shipPosition) + 22.5;
+                
+            
+                shipPosition = (shipPosition + 'px');
+               
+                bullet.style.left = shipPosition;
+            
+                document.getElementById('station').append(bullet)
+
+
+            }
+            let moveright = () => {
+                let ship = document.getElementById('ship');
+           
+                let current = ship.style.left.toString();
+                if(current == null || current == undefined || current == ''){    
+                    current = 375;
+                }
+                if(current.length > 2){
+                    current = current.substring(0, current.length - 2);
+                }
+                current = Number(current)
+                if(current < 740)
+                    current += 10;
+                
+                ship.style.left = (current + 'px');
+
+            }
+
+            let moveleft = () => {
+                let ship = document.getElementById('ship');
+           
+                let current = ship.style.left.toString();
+                if(current == null || current == undefined || current == ''){
+                    current = 375;
+                }
+                if(current.length > 2){
+                    current = current.substring(0, current.length - 2);
+                }
+                current = Number(current)
+                if(current > 10)
+                    current -= 10;
+                
+                ship.style.left = (current + 'px');
+
+            }
+
+           
+
+            let updateBullet = () => {
+                
+                let bullets = document.getElementsByClassName('bullet');
+                let ship = document.getElementById('ship');
+                let shipPosition = window.getComputedStyle(ship).getPropertyValue('left');
+                
+                //alert("type of bullet: " + typeof(bullets))
+                if(bullets.length > 0){
+                    // change from relative to absolute
+
+
+                    for (let x = 0; x < bullets.length; x++){
+
+                        
+                        let bullet = bullets[x];
+                        let current = bullet.style.bottom.toString();
+                        let currentLeft = bullet.style.left.toString();
+
+                       
+
+                      
+                        if(bullet.style.position == ''){
+                            bullet.style.position = 'absolute';
+                        }
+                       
+
+                        if(current == null || current == undefined || current == ''){    
+                            current = 40;
+                        }
+                        
+                        
+
+                        if(current.length > 2){
+                            current = current.substring(0, current.length - 2);
+                        }
+
+
+                        current = Number(current)
+
+                        if(current > 780){
+                            bullet.parentNode.removeChild(bullet);
+
+                        }
+                        current += 10;
+                        
+                        bullet.style.bottom = (current + 'px');
+
+                           
+
+                        //bullet position relative to ship
+                       
+                        checkCollision(bullet)
+
+                    }
+                }
+               
+            }
+
+            let updateEnemy = () => {
+                let enemies = document.getElementsByClassName('enemy')[0];
+                let enemyPosition = window.getComputedStyle(enemies).getPropertyValue('left');
+                //lert(enemyPosition)
+                if(enemyPosition.length > 2){
+                    enemyPosition = enemyPosition.substring(0, enemyPosition.length - 2);
+                }
+
+                if(enemyDirection == 'right' && enemyPosition < 590){
+                    //keep moving right
+                    enemyPosition = Number(enemyPosition)
+                    enemyPosition += 5;
+                    enemies.style.left = (enemyPosition + 'px');
+
+                }else{
+                    enemyDirection = 'left';
+                    enemyPosition = Number(enemyPosition)
+                    enemyPosition -= 5;
+                    enemies.style.left = (enemyPosition + 'px');
+                }
+
+                if(enemyDirection == 'left' && enemyPosition > 11){
+                    //keep moving right
+                    enemyPosition = Number(enemyPosition)
+                    enemyPosition -= 5;
+                    enemies.style.left = (enemyPosition + 'px');
+
+                }else{
+                    enemyDirection = 'right';
+                    enemyPosition = Number(enemyPosition)
+                    enemyPosition += 5;
+                    enemies.style.left = (enemyPosition + 'px');
+                }
+                enemies.innerHTML = enemyHealth;
+                if(enemyHealth < 1){
+                    enemyHealth = 100
+                }
+
+
+            }
+            let updateState = () => {
+                if(gamestarted == true){
+                    updateBullet();
+                    updateEnemy();
+                }
+               
+
+
+            }
+            setInterval(updateState, 55);
+        </script>
+        <div id="space">
+
+            <div id="Russians">
+                <div class="enemy">
+                    
+                </div>
+
+            </div>
+            <div id="majorcity">
+
+
+            </div>
+            <div id="station">
+                <div id="ship">
+                    
+                </div>
+            </div>
+        </div>
+
+        
+
+
+    </body>
+</html>
